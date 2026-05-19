@@ -1304,6 +1304,38 @@ if st.session_state.page == "Analysis":
         crr = score / overs if overs > 0 else 0
         rrr = (runs_left * 6) / balls_left if balls_left > 0 else 0
 
+        # ---- MATCH-STATE VALIDATION (Issue #31) ----
+        # Guard 1: batting team has already reached or crossed the target
+        if runs_left <= 0:
+            st.success(
+                f"🏆 **Match Over** — **{batting_team}** have already reached the target! "
+                f"No prediction needed."
+            )
+            st.stop()
+
+        # Guard 2: no balls remaining — innings is over, batting team fell short
+        if balls_left <= 0:
+            st.error(
+                f"⏱️ **Match Over** — No balls remaining. **{bowling_team}** win! "
+                f"No prediction needed."
+            )
+            st.stop()
+
+        # Guard 3: RRR physically impossible (> 36 runs/over = 6 runs every ball)
+        if rrr > 36.0:
+            st.error(
+                f"⚠️ **Invalid match state** — Required Run Rate is **{round(rrr, 2)} runs/over**, "
+                f"which is physically impossible in cricket. Please check your inputs."
+            )
+            st.stop()
+
+        # Guard 4: RRR extremely high (> 24 runs/over) — warn but allow prediction
+        if rrr > 24.0:
+            st.warning(
+                f"⚠️ **Extreme match state** — Required Run Rate is **{round(rrr, 2)} runs/over**. "
+                f"This is a very unlikely scenario; the prediction below may be less reliable."
+            )
+
         input_df = pd.DataFrame({
             'batting_team': [batting_team],
             'bowling_team': [bowling_team],

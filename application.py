@@ -1214,7 +1214,7 @@ if st.session_state.page == "Analysis":
         score = st.number_input("Current Score", min_value=0, max_value=target - 1, value=50, step=1)
         col_ov, col_wk = st.columns(2)
         with col_ov:
-            overs = st.slider("Overs Completed", min_value=1, max_value=19, value=10)
+            overs = st.number_input("Overs Completed (e.g. 10.3)",min_value=0.0,max_value=19.5,value=10.0,step=0.1) #
         with col_wk:
             wickets = st.number_input("Wickets Fallen", min_value=0, max_value=9, value=2)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1302,8 +1302,15 @@ if st.session_state.page == "Analysis":
     # ---- PREDICTION OUTPUT ----
     if analyze:
         runs_left = target - score
-        balls_left = 120 - (overs * 6)
-        crr = score / overs if overs > 0 else 0
+        completed_overs = int(overs)
+        balls = int(round((overs - completed_overs) * 10))
+        if balls > 5:
+            st.error("Invalid overs format! Use cricket format like 10.3 or 17.5")
+            st.stop()
+        total_balls_bowled = (completed_overs * 6) + balls
+        balls_left = 120 - total_balls_bowled
+        overs_completed = total_balls_bowled / 6
+        crr = score / overs_completed if overs_completed > 0 else 0
         rrr = (runs_left * 6) / balls_left if balls_left > 0 else 0
 
         input_df = pd.DataFrame({

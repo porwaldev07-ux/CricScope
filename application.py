@@ -1609,8 +1609,8 @@ if st.session_state.page == "Analysis":
             'city': [city],  # Here is the mAin fix, from hardcoded mumbai -> dynamic city input
             'runs_left': [runs_left],
             'balls_left': [balls_left],
-            'wickets': [10 - wickets],
-            'target': [target],
+            'wickets_left': [10 - wickets],
+            'total_runs_x': [target],
             'crr': [crr],
             'rrr': [rrr]
         })

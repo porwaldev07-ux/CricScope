@@ -1610,11 +1610,18 @@ if st.session_state.page == "Analysis":
             'runs_left': [runs_left],
             'balls_left': [balls_left],
             'wickets_left': [10 - wickets],
-            'total_runs_x': [target],
+            'target_score': [target],
             'crr': [crr],
             'rrr': [rrr]
         })
+        input_df = pd.get_dummies(input_df)
+        model_columns = loaded_xgb.get_booster().feature_names
+        for col in model_columns:
+            if col not in input_df.columns:
+                input_df[col] = 0
 
+        input_df = input_df[model_columns]
+      
         with st.spinner(""):
             time.sleep(0.4)
             result = loaded_xgb.predict_proba(input_df)
@@ -1714,7 +1721,7 @@ if st.session_state.page == "Analysis":
         verdict = batting_team if win > 0.5 else bowling_team
         conf = max(win, loss)
         conf_label = "High" if conf > 0.75 else "Moderate" if conf > 0.55 else "Close"
-        conf = max(win, lose)
+        conf = max(win, loss)
         conf_color = "#10b981" if conf > 0.75 else "#fbbf24" if conf > 0.55 else "#f87171"
         conf_label = "High Confidence" if conf > 0.75 else "Moderate" if conf > 0.55 else "Close Match"
 
